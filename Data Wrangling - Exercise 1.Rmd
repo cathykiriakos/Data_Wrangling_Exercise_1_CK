@@ -1,0 +1,82 @@
+---
+title: "Data Wrangling - Exercise 1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Library Dyplr & tydr
+library(magrittr)
+library(dplyr)
+library(tidyr)
+
+```
+
+
+```{r}
+#Load refine_original csv into R as a data frame NOTE: must update all backslashes to forward slashes in order to load!!
+refine_original <- read.csv("C:/Users/kiriakosc/Documents/R/refine_original.csv", header=TRUE)
+```
+
+```{r}
+#1) Clean up brand names (dyplr)
+
+refine_clean <- refine_original %>%
+
+mutate(
+  company = case_when(
+    substr(tolower(.$company), 0,1) == "p" | substr(tolower(.$company), 0,1) == "f" ~ "philips",
+    substr(tolower(.$company), 0,1) == "a" ~"akzo",
+    substr(tolower(.$company), 0,1) == "u" ~ "unilever",
+    substr(tolower(.$company), 0,1) == "v" ~ "van houten"
+  )
+  )%>%
+
+# 2) Separate product code and number 
+  
+ separate(Product.code...number, c("product_code", "product_number"), sep = "-") %>%
+
+#3) Add product categories 
+
+mutate(product_category = case_when(
+       .$product_code == "p" ~ "smartphone",
+       .$product_code == "v" ~ "tv",
+       .$product_code == "x" ~ "laptop",
+       .$product_code == "q" ~ "tablet"
+),
+#4) Add address for geocoding
+
+full_address = paste(address, city, country, sep = ","),
+
+#5) create dummy variables
+mpany_philips = ifelse(company == "philips", 1, 0), 
+    company_akzo = ifelse(company == "akzo", 1, 0), 
+    company_van_houten = ifelse(company == "van houten", 1, 0), 
+    company_unilever = ifelse(company == "unilever", 1, 0), 
+  
+    product_smartphone = ifelse(product_code == "p", 1, 0), 
+    product_tv = ifelse(product_code == "v", 1, 0), 
+    product_laptop = ifelse(product_code == "x", 1, 0), 
+    product_tablet = ifelse(product_code == "q", 1, 0)
+)
+
+#6) Submit to github
+write.csv(refine_clean, file = "refine_clean.csv", row.names = FALSE)
+
+```
+
+
+  
+  
+
+
+
+
+
+
+
+
+
